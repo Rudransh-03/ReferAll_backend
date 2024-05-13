@@ -34,8 +34,8 @@ public class Post {
     @Column(name = "summary", length = 300)
     private String summary;
 
-    @Column(name = "isReferred")
-    private boolean isReferred;
+    @Column(name = "referred_status")
+    private int referredStatus = 0;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

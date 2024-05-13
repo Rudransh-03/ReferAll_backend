@@ -1,4 +1,64 @@
 package com.referAll.backend.controllers;
 
+import com.referAll.backend.entities.dtos.PostDto;
+import com.referAll.backend.services.PostService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
 public class PostController {
+
+    @Autowired
+    private PostService postService;
+
+    @GetMapping("/posts/getAllPosts")
+    public ResponseEntity<List<PostDto>> getPosts(){
+        List<PostDto> postDtoList = postService.getPosts();
+        return ResponseEntity.ok(postDtoList);
+    }
+
+    @GetMapping("/posts/getPostsByUser/{userId}")
+    public ResponseEntity<List<PostDto>> getPostsByUser(@PathVariable String userId){
+        List<PostDto> postDtoList = postService.getPostsByUser(userId);
+        return ResponseEntity.ok(postDtoList);
+    }
+
+    @GetMapping("/posts/getPostsByCompany/{companyName}")
+    public ResponseEntity<List<PostDto>> getPostsByCompany(@PathVariable String companyName){
+        List<PostDto> postDtoList = postService.getPostsByCompany(companyName);
+        return ResponseEntity.ok(postDtoList);
+    }
+
+    @GetMapping("/changeIsReferredToInProgress/{postId}")
+    public ResponseEntity<String> changeIsReferredToInProgress(@PathVariable String postId) throws Exception {
+        String response = postService.changeIsReferredToInProgress(postId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/changeIsReferredToReferred/{postId}")
+    public ResponseEntity<String> changeIsReferredToReferred(@PathVariable String postId) throws Exception {
+        String response = postService.changeIsReferredToReferred(postId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/posts/addPost/{userId}")
+    public ResponseEntity<String> addPost(@RequestBody PostDto newPostDto, @PathVariable String userId) throws Exception {
+        String response = postService.addPost(newPostDto, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/posts/updatePost/{userId}/{postId}")
+    public ResponseEntity<String> updatePost(@RequestBody PostDto updatedPostDto, @PathVariable String userId, @PathVariable String postId) throws Exception {
+        String response = postService.updatePost(updatedPostDto, userId, postId);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/posts/deletePost/{postId}")
+    public ResponseEntity<String> deletePost(@PathVariable String postId) throws Exception {
+        String response = postService.deletePost(postId);
+        return ResponseEntity.ok(response);
+    }
 }

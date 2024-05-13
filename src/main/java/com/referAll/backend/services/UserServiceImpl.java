@@ -71,7 +71,6 @@ public class UserServiceImpl implements UserService{
         while (userRepository.existsById(id)) {
             id = generateUniqueId();
         }
-        String userPassword = newUserDto.getPassword();
         newUserDto.setUserId(id);
         User newUser = modelMapper.map(newUserDto, User.class);
         userRepository.save(newUser);
@@ -80,6 +79,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public String updateUser(UserDto updatedUserDto, String userId) {
+        updatedUserDto.setUserId(userId);
         User updatedUser = modelMapper.map(updatedUserDto, User.class);
         userRepository.save(updatedUser);
         return "User Updated Successfully";

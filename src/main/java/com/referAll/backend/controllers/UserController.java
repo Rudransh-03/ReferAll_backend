@@ -23,13 +23,13 @@ public class UserController {
         return ResponseEntity.ok(fetchedUser);
     }
 
-    @GetMapping("/users")
+    @GetMapping("/users/getAllUsers")
     public ResponseEntity<List<UserDto>> getAllUsers(){
         List<UserDto> userDtoList = userService.getAllUsers();
         return ResponseEntity.ok(userDtoList);
     }
 
-    @GetMapping("/add/{points}/to/{userId}")
+    @GetMapping("/users/add/{points}/to/{userId}")
     public ResponseEntity<String> addPointsToUser(@PathVariable("points") int points, @PathVariable("userId") String userId) throws Exception {
         System.out.println(points);
 
@@ -37,14 +37,14 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/remove/{points}/from/{userId}")
+    @GetMapping("/users/remove/{points}/from/{userId}")
     public ResponseEntity<String> removePointsFromUser(@PathVariable("points") int points, @PathVariable("userId") String userId) throws Exception {
 
         String response = userService.removePointsFromUser(points, userId);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/users")
+    @PostMapping("/users/addUser")
     public ResponseEntity<String> addUser(@RequestBody UserDto newUserDto){
         System.out.println(newUserDto);
 
@@ -52,13 +52,13 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/user/{userId}")
+    @PutMapping("/users/updateUser/{userId}")
     public ResponseEntity<String> updateUser(@RequestBody UserDto updatedUserDto, @PathVariable("userId") String userId){
         String response = userService.updateUser(updatedUserDto, userId);
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/user/{userId}")
+    @DeleteMapping("/users/deleteUser/{userId}")
     public ResponseEntity<String> deleteUser(@PathVariable("userId") String userId){
         String response = userService.deleteUser(userId);
         return ResponseEntity.ok(response);

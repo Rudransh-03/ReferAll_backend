@@ -52,6 +52,7 @@ public class User {
     @Column(name = "points")
     private Long points=0L;
 
+    @Transient
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Post> postsList;
 }
