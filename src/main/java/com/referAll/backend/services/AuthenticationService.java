@@ -1,7 +1,6 @@
 package com.referAll.backend.services;
 
 import com.referAll.backend.entities.dtos.LoginUserDto;
-import com.referAll.backend.entities.dtos.RegisterUserDto;
 import com.referAll.backend.entities.dtos.UserDto;
 import com.referAll.backend.entities.models.User;
 import com.referAll.backend.respositories.UserRepository;
@@ -14,8 +13,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class AuthenticationService {
@@ -57,15 +54,18 @@ public class AuthenticationService {
     }
 
     public User authenticate(LoginUserDto input) throws Exception {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        input.getEmail(),
-                        input.getPassword()
-                )
-        );
-
-        return userRepository.findByEmailId(input.getEmail())
-                .orElseThrow();
+        try {
+            Authentication authenticate = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            input.getEmail(),
+                            input.getPassword()
+                    )
+            );
+            return userRepository.findByEmailId(input.getEmail())
+                    .orElseThrow(() -> new Exception("User not found with email"));
+        } catch (AuthenticationException e) {
+            throw new Exception("Please ensure you enter the registered email and password.");
+        }
     }
 
     public String generateUniqueId() {

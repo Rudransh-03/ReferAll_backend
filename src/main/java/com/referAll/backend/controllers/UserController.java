@@ -1,16 +1,20 @@
 package com.referAll.backend.controllers;
 
 import com.referAll.backend.entities.dtos.UserDto;
-import com.referAll.backend.entities.models.User;
+import com.referAll.backend.exceptions.JwtAuthenticationException;
 import com.referAll.backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.List;
 
-@RestController("/")
-public class UserController {
+@RestController
+@ControllerAdvice
+public class UserController extends ResponseEntityExceptionHandler {
 
     @Autowired
     public UserService userService;
@@ -24,7 +28,7 @@ public class UserController {
     }
 
     @GetMapping("/users/getAllUsers")
-    public ResponseEntity<List<UserDto>> getAllUsers(){
+    public ResponseEntity<List<UserDto>> getAllUsers() {
         List<UserDto> userDtoList = userService.getAllUsers();
         return ResponseEntity.ok(userDtoList);
     }
@@ -45,13 +49,13 @@ public class UserController {
     }
 
     @PutMapping("/users/updateUser/{userId}")
-    public ResponseEntity<String> updateUser(@RequestBody UserDto updatedUserDto, @PathVariable("userId") String userId){
+    public ResponseEntity<String> updateUser(@RequestBody UserDto updatedUserDto, @PathVariable("userId") String userId) {
         String response = userService.updateUser(updatedUserDto, userId);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/users/deleteUser/{userId}")
-    public ResponseEntity<String> deleteUser(@PathVariable("userId") String userId){
+    public ResponseEntity<String> deleteUser(@PathVariable("userId") String userId) {
         String response = userService.deleteUser(userId);
         return ResponseEntity.ok(response);
     }
