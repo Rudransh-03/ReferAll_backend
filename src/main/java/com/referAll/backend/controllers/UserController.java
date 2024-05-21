@@ -44,14 +44,6 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/users/addUser")
-    public ResponseEntity<String> addUser(@RequestBody UserDto newUserDto){
-        System.out.println(newUserDto);
-
-        String response = userService.addUser(newUserDto);
-        return ResponseEntity.ok(response);
-    }
-
     @PutMapping("/users/updateUser/{userId}")
     public ResponseEntity<String> updateUser(@RequestBody UserDto updatedUserDto, @PathVariable("userId") String userId){
         String response = userService.updateUser(updatedUserDto, userId);

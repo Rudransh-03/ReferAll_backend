@@ -40,6 +40,7 @@ public class UserServiceImpl implements UserService{
             UserDto userDto = modelMapper.map(user, UserDto.class);
             userDtoList.add(userDto);
         }
+        System.out.println(userDtoList);
         return userDtoList;
     }
 
