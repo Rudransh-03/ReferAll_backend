@@ -26,6 +26,8 @@ public class UserDto {
 
     private String contactNumber;
 
+    private String currentTitle;
+
     private String currentCompany;
 
     private String resumeUrl;

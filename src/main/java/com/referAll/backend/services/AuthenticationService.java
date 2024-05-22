@@ -57,11 +57,11 @@ public class AuthenticationService {
         try {
             Authentication authenticate = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            input.getEmail(),
+                            input.getEmailId(),
                             input.getPassword()
                     )
             );
-            return userRepository.findByEmailId(input.getEmail())
+            return userRepository.findByEmailId(input.getEmailId())
                     .orElseThrow(() -> new Exception("User not found with email"));
         } catch (AuthenticationException e) {
             throw new Exception("Please ensure you enter the registered email and password.");

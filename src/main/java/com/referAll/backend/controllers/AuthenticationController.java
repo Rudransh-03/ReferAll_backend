@@ -41,12 +41,23 @@ public class AuthenticationController {
     public ResponseEntity<?> authenticate(@RequestBody LoginUserDto loginUserDto) {
         try {
             User authenticatedUser = authenticationService.authenticate(loginUserDto);
-
+//            System.out.println("HIHIIHIHIHI");
+//            System.out.println(authenticatedUser.getFirstName());
             String jwtToken = jwtService.generateToken(authenticatedUser);
-            System.out.println("jwt- " + jwtToken);
+//            System.out.println("jwt- " + jwtToken);
 
             LoginResponse loginResponse = new LoginResponse();
-            loginResponse.setToken(jwtToken);
+            loginResponse.setFirstName(authenticatedUser.getFirstName());
+            loginResponse.setLastName(authenticatedUser.getLastName());
+            loginResponse.setEmailId(authenticatedUser.getEmailId());
+            loginResponse.setContactNumber(authenticatedUser.getContactNumber());
+            loginResponse.setCurrentCompany(authenticatedUser.getCurrentCompany());
+            loginResponse.setCurrentTitle(authenticatedUser.getCurrentTitle());
+            loginResponse.setLinkedInUrl(authenticatedUser.getLinkedInUrl());
+            loginResponse.setResumeUrl(authenticatedUser.getResumeUrl());
+            loginResponse.setPoints(authenticatedUser.getPoints());
+            loginResponse.setBio(authenticatedUser.getBio());
+            loginResponse.setJwtToken(jwtToken);
             loginResponse.setExpiresIn(jwtService.getExpirationTime());
 
             return ResponseEntity.ok(loginResponse);

@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 public class LoginUserDto {
-    private String email;
+    private String emailId;
 
     private String password;
 

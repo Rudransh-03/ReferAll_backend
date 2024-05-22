@@ -37,6 +37,9 @@ public class User {
     @Column(name = "contact_number")
     private String contactNumber;
 
+    @Column(name = "current_title")
+    private String currentTitle;
+
     @Column(name = "current_company")
     private String currentCompany;
 
