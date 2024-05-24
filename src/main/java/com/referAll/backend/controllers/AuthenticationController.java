@@ -10,6 +10,7 @@ import com.referAll.backend.services.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,11 +40,15 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody LoginUserDto loginUserDto) {
+        System.out.println(loginUserDto.getEmailId());
+        System.out.println(loginUserDto.getPassword());
+
         try {
             User authenticatedUser = authenticationService.authenticate(loginUserDto);
 //            System.out.println("HIHIIHIHIHI");
 //            System.out.println(authenticatedUser.getFirstName());
             String jwtToken = jwtService.generateToken(authenticatedUser);
+            System.out.println(jwtToken);
 //            System.out.println("jwt- " + jwtToken);
 
             LoginResponse loginResponse = new LoginResponse();
@@ -62,6 +67,7 @@ public class AuthenticationController {
 
             return ResponseEntity.ok(loginResponse);
         } catch (Exception e) {
+            System.out.println("jwt Error");
             // Handle authentication exception and return error response
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Collections.singletonMap("error", e.getMessage()));

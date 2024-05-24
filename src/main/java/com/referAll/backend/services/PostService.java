@@ -12,6 +12,8 @@ public interface PostService {
 
     List<PostDto> getPostsByCompany(String companyName);
 
+    PostDto getPostsByPostId(String postId);
+
     String changeIsReferredToInProgress(String postId) throws Exception;
 
     String changeIsReferredToReferred(String postId) throws Exception;

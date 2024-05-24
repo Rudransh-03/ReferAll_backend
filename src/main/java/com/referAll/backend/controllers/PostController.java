@@ -26,6 +26,12 @@ public class PostController {
         return ResponseEntity.ok(postDtoList);
     }
 
+    @GetMapping("/posts/getPostsByPostId/{postId}")
+    public ResponseEntity<PostDto> getPostsByPostId(@PathVariable String postId){
+        PostDto postDto = postService.getPostsByPostId(postId);
+        return ResponseEntity.ok(postDto);
+    }
+
     @GetMapping("/posts/getPostsByCompany/{companyName}")
     public ResponseEntity<List<PostDto>> getPostsByCompany(@PathVariable String companyName){
         List<PostDto> postDtoList = postService.getPostsByCompany(companyName);

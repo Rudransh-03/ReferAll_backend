@@ -15,4 +15,7 @@ public interface PostRepository extends CrudRepository<Post, String> {
 
     @Query(value = "SELECT * FROM POSTS where company_name = ?1", nativeQuery = true)
     public List<Post> findByCompanyName(String companyName);
+
+    @Query(value = "SELECT * FROM POSTS where post_id = ?1", nativeQuery = true)
+    public Post findByPostId(String postId);
 }

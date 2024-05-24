@@ -26,14 +26,11 @@ public class ApplicationConfiguration {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        // This function implements the loadUserByUsername method for authentication
         return new UserDetailsService() {
             @Override
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                // Look for a user in the database using the username (email)
                 Optional<User> userOptional = userRepository.findByEmailId(username);
 
-                // If the user is found, return the user details; otherwise, throw an exception
                 if (userOptional.isPresent()) {
                     User user = userOptional.get();
                     // You would typically return UserDetails here, but the example shows User for simplicity

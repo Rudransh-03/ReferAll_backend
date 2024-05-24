@@ -11,8 +11,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class AuthenticationService {
@@ -54,16 +57,26 @@ public class AuthenticationService {
     }
 
     public User authenticate(LoginUserDto input) throws Exception {
+//        System.out.println("authenticate-1");
+        String emailId = input.getEmailId();
+        String password = input.getPassword();
         try {
-            Authentication authenticate = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            input.getEmailId(),
-                            input.getPassword()
-                    )
-            );
+//            System.out.println("authenticate-2");
+            BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
+            Optional<User> user = userRepository.findByEmailId(emailId);
+
+            if(user.isPresent()){
+                boolean isPasswordMatches = bcrypt.matches(password, user.get().getPassword());
+                System.out.println(isPasswordMatches);
+                if(!isPasswordMatches) throw new Exception("Incorrect password");
+            }
+
+            else throw new Exception("Incorrect creds");
+            System.out.println("authenticate-3");
             return userRepository.findByEmailId(input.getEmailId())
-                    .orElseThrow(() -> new Exception("User not found with email"));
+                    .orElseThrow(() -> new Exception("Incorrect email"));
         } catch (AuthenticationException e) {
+            System.out.println("authenticate-error: " + e.getMessage());
             throw new Exception("Please ensure you enter the registered email and password.");
         }
     }

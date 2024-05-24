@@ -34,10 +34,12 @@ public class JwtService {
     }
 
     public String generateToken(User userDetails) {
+//        System.out.println("Step-1");
         return generateToken(new HashMap<>(), userDetails);
     }
 
     public String generateToken(Map<String, Object> extraClaims, User userDetails) {
+//        System.out.println("Step-2");
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
 
@@ -50,6 +52,7 @@ public class JwtService {
             User userDetails,
             long expiration
     ) {
+//        System.out.println("Step-3");
         return Jwts
                 .builder()
                 .setClaims(extraClaims)

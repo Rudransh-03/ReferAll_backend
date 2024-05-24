@@ -49,10 +49,10 @@ public class PostServiceImpl implements PostService{
 
     @Override
     public List<PostDto> getPostsByCompany(String companyName) {
-        System.out.println(companyName);
+//        System.out.println(companyName);
         List<PostDto> postDtoList = new ArrayList<>();
         for(Post p : postRepository.findByCompanyName(companyName.toLowerCase())){
-            System.out.println(p.getUser().getFirstName());
+//            System.out.println(p.getUser().getFirstName());
             PostDto postDto = modelMapper.map(p, PostDto.class);
             postDtoList.add(postDto);
         }
@@ -64,6 +64,12 @@ public class PostServiceImpl implements PostService{
         });
 
         return postDtoList;
+    }
+
+    @Override
+    public PostDto getPostsByPostId(String postId) {
+        Post post = postRepository.findByPostId(postId);
+        return modelMapper.map(post, PostDto.class);
     }
 
     @Override
