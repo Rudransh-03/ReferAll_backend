@@ -14,6 +14,10 @@ public interface PostService {
 
     PostDto getPostsByPostId(String postId);
 
+    List<PostDto> getFilteredPostsByReferredStatusAndSearchTerm(String referredStatus, String searchTerm, String companyName);
+
+    List<PostDto> getFilteredPostsByReferredStatus(String referredStatus, String companyName);
+
     String changeIsReferredToInProgress(String postId) throws Exception;
 
     String changeIsReferredToReferred(String postId) throws Exception;

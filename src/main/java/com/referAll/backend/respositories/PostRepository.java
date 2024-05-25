@@ -18,4 +18,11 @@ public interface PostRepository extends CrudRepository<Post, String> {
 
     @Query(value = "SELECT * FROM POSTS where post_id = ?1", nativeQuery = true)
     public Post findByPostId(String postId);
+
+    @Query(value = "SELECT * FROM POSTS WHERE referred_status = ?1 AND (LOWER(job_id) LIKE LOWER(CONCAT('%', ?2, '%')) OR LOWER(job_title) LIKE LOWER(CONCAT('%', ?2, '%'))) AND LOWER(company_name) = LOWER(?3)", nativeQuery = true)
+    public List<Post> getFilteredPostsByReferredStatusAndSearchTerm(int referredStatus, String searchTerm, String companyName);
+
+    @Query(value = "SELECT * FROM POSTS WHERE referred_status = ?1 AND LOWER(company_name) = LOWER(?2)", nativeQuery = true)
+    public List<Post> getFilteredPostsByReferredStatus(int referredStatus, String companyName);
+
 }

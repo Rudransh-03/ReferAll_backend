@@ -60,7 +60,9 @@ public class PostServiceImpl implements PostService{
         postDtoList.sort((a, b) -> {
             Long pointsA = a.getUser().getPoints();
             Long pointsB = b.getUser().getPoints();
-            return pointsB.compareTo(pointsA);
+
+            if(a.getReferredStatus() == b.getReferredStatus()) return pointsB.compareTo(pointsA);
+            return (a.getReferredStatus() - b.getReferredStatus());
         });
 
         return postDtoList;
@@ -70,6 +72,64 @@ public class PostServiceImpl implements PostService{
     public PostDto getPostsByPostId(String postId) {
         Post post = postRepository.findByPostId(postId);
         return modelMapper.map(post, PostDto.class);
+    }
+
+    @Override
+    public List<PostDto> getFilteredPostsByReferredStatusAndSearchTerm(String referredStatus, String searchTerm, String companyName) {
+
+//        if(referredStatus.equalsIgnoreCase("none")) return getPostsByCompany(companyName);
+
+        int referredStatusInt = 0;
+        if(referredStatus.equalsIgnoreCase("Unreferred")) referredStatusInt = 0;
+        else if(referredStatus.equalsIgnoreCase("in progress")) referredStatusInt = 1;
+        else referredStatusInt = 2;
+
+        System.out.println("referredStatus "+referredStatusInt);
+
+        List<PostDto> filteredPostsDtoByReferredStatusAndSearchTerm = new ArrayList<>();
+
+        for(Post p : postRepository.getFilteredPostsByReferredStatusAndSearchTerm(referredStatusInt, searchTerm, companyName.toLowerCase())){
+            PostDto postDto = modelMapper.map(p, PostDto.class);
+            filteredPostsDtoByReferredStatusAndSearchTerm.add(postDto);
+        }
+
+        return filteredPostsDtoByReferredStatusAndSearchTerm;
+    }
+
+    @Override
+    public List<PostDto> getFilteredPostsByReferredStatus(String referredStatus, String companyName) {
+        try {
+            System.out.println("referredStatus: " + referredStatus);
+            System.out.println("companyName: " + companyName);
+
+            if (referredStatus.equalsIgnoreCase("none")) {
+                System.out.println("idhr waala none");
+                return getPostsByCompany(companyName);
+            }
+
+            int referredStatusInt = 0;
+            if (referredStatus.equalsIgnoreCase("Unreferred")) referredStatusInt = 0;
+            else if (referredStatus.equalsIgnoreCase("in progress")) referredStatusInt = 1;
+            else referredStatusInt = 2;
+
+            System.out.println("referredStatus (int): " + referredStatusInt);
+
+            List<PostDto> filteredPostsDtoByReferredStatus = new ArrayList<>();
+
+            List<Post> filteredPosts = postRepository.getFilteredPostsByReferredStatus(referredStatusInt, companyName);
+            System.out.println("Number of filtered posts: " + filteredPosts.size());
+
+            for (Post p : filteredPosts) {
+                PostDto postDto = modelMapper.map(p, PostDto.class);
+                filteredPostsDtoByReferredStatus.add(postDto);
+            }
+
+            return filteredPostsDtoByReferredStatus;
+        } catch (Exception ex) {
+            System.err.println("Error in getFilteredPostsByReferredStatus: " + ex.getMessage());
+            ex.printStackTrace();
+            return Collections.emptyList(); // Or handle the exception according to your application logic
+        }
     }
 
     @Override

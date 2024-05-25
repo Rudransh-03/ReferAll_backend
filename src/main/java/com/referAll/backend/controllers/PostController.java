@@ -38,6 +38,29 @@ public class PostController {
         return ResponseEntity.ok(postDtoList);
     }
 
+    @GetMapping("/posts/getFilteredPostsByReferredStatus/{companyName}")
+    public ResponseEntity<?> getFilteredPostsByReferredStatus(@RequestParam("referredStatus") String referredStatus, @PathVariable String companyName){
+        System.out.println(referredStatus+" "+companyName);
+        System.out.println("---------------");
+        List<PostDto> filteredPostsByReferredStatus = postService.getFilteredPostsByReferredStatus(referredStatus, companyName);
+        if(filteredPostsByReferredStatus.isEmpty()){
+            return ResponseEntity.ok("No posts found");
+        }
+        return ResponseEntity.ok(filteredPostsByReferredStatus);
+    }
+
+    @GetMapping("/posts/getFilteredPostsByBothReferredStatusAndSearchTerm/{companyName}")
+    public ResponseEntity<?> getFilteredPostsByReferredStatusAndSearchTerm(@RequestParam("referredStatus") String referredStatus, @RequestParam("searchTerm") String searchTerm, @PathVariable String companyName){
+        System.out.println(referredStatus + " "+searchTerm+" "+companyName);
+        List<PostDto> filteredPostsByReferredStatusAndSearchTerm = postService.getFilteredPostsByReferredStatusAndSearchTerm(referredStatus, searchTerm, companyName);
+        if(filteredPostsByReferredStatusAndSearchTerm.isEmpty()){
+            return ResponseEntity.ok("No posts found");
+        }
+        System.out.println(filteredPostsByReferredStatusAndSearchTerm.size());
+        return ResponseEntity.ok(filteredPostsByReferredStatusAndSearchTerm);
+    }
+
+
     @GetMapping("/changeIsReferredToInProgress/{postId}")
     public ResponseEntity<String> changeIsReferredToInProgress(@PathVariable String postId) throws Exception {
         String response = postService.changeIsReferredToInProgress(postId);
