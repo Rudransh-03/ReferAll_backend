@@ -17,6 +17,8 @@ import lombok.Setter;
 public class PostDto {
     private String postId;
 
+    private String creationDate;
+
     private String companyName;
 
     private String jobId;
@@ -28,6 +30,8 @@ public class PostDto {
     private String summary;
 
     private int referredStatus = 0;
+
+    private String referrerId;
 
     private User user;
 }

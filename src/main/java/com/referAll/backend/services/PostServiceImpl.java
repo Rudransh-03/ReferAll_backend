@@ -10,10 +10,15 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
 public class PostServiceImpl implements PostService{
+
+    @Autowired
+    private EmailSenderService emailSenderService;
 
     @Autowired
     private PostRepository postRepository;
@@ -38,12 +43,22 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
+    public int getTotalPostsCountByCompany(String companyName) {
+        return postRepository.getTotalPostsCountByCompany(companyName);
+    }
+
+    @Override
     public List<PostDto> getPostsByUser(String userId) {
         List<PostDto> postDtoList = new ArrayList<>();
         for(Post p : postRepository.findByUserID(userId)){
             PostDto postDto = modelMapper.map(p, PostDto.class);
             postDtoList.add(postDto);
         }
+
+        postDtoList.sort((a, b)->{
+            if(a.getCreationDate().equalsIgnoreCase(b.getCreationDate())) return a.getReferredStatus() - b.getReferredStatus();
+            return a.getCreationDate().compareTo(b.getCreationDate());
+        });
         return postDtoList;
     }
 
@@ -69,6 +84,19 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
+    public List<PostDto> getPaginatedPostsByCompany(int pageNumber, String companyName) {
+        List<PostDto> completeList = getPostsByCompany(companyName);
+        int startingIndex = ((pageNumber-1)*5);
+        int endingIndex = Math.min(startingIndex+6, completeList.size());
+
+        return completeList.subList(startingIndex, endingIndex);
+    }
+
+//    public List<PostDto> paginatePosts(int pageNumber, List<PostDto> postsList){
+//
+//    }
+
+    @Override
     public PostDto getPostsByPostId(String postId) {
         Post post = postRepository.findByPostId(postId);
         return modelMapper.map(post, PostDto.class);
@@ -79,10 +107,11 @@ public class PostServiceImpl implements PostService{
 
 //        if(referredStatus.equalsIgnoreCase("none")) return getPostsByCompany(companyName);
 
+        System.out.println(referredStatus);
         int referredStatusInt = 0;
-        if(referredStatus.equalsIgnoreCase("Unreferred")) referredStatusInt = 0;
+        if(referredStatus.equalsIgnoreCase("referred")) referredStatusInt = 2;
         else if(referredStatus.equalsIgnoreCase("in progress")) referredStatusInt = 1;
-        else referredStatusInt = 2;
+        else referredStatusInt = 0;
 
         System.out.println("referredStatus "+referredStatusInt);
 
@@ -104,7 +133,7 @@ public class PostServiceImpl implements PostService{
 
             if (referredStatus.equalsIgnoreCase("none")) {
                 System.out.println("idhr waala none");
-                return getPostsByCompany(companyName);
+                return getPaginatedPostsByCompany(1, companyName);
             }
 
             int referredStatusInt = 0;
@@ -133,31 +162,81 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public String changeIsReferredToInProgress(String postId) throws Exception {
+    public String changeIsReferredToInProgress(String postId, String userId) throws Exception {
         Post post = postRepository.findById(postId).orElseThrow(() -> new Exception("Post not found with id: " + postId));
+        String referredUserId = post.getUser().getUserId();
+        Optional<User> optionalReferredUser = userRepository.findById(referredUserId);
+        User referredUser = null;
+
+        Optional<User> optionalReferrerUser = userRepository.findById(userId);
+        User referrerUser = null;
+
+        if(optionalReferredUser.isPresent()) referredUser = optionalReferredUser.get();
+        if(optionalReferrerUser.isPresent()) referrerUser = optionalReferrerUser.get();
+
         post.setReferredStatus(1);
+        post.setReferrerId(userId);
         postRepository.save(post);
+
+        emailSenderService.sendMail(referredUser.getEmailId(), "You have been referred!!", "You received a referral from "+referrerUser.getEmailId()+
+                " for your request for the position: "+post.getJobTitle()+" at "+post.getCompanyName()+" on our website. " +
+                "Kindly check your mails including your spam folder for any such official confirmation from the company");
+
         return "Status of the post with postId- "+postId+" changed to in-progress!";
     }
 
     @Override
-    public String changeIsReferredToReferred(String postId) throws Exception{
+    public String changeIsReferredToReferred(String postId, String userId) throws Exception{
         Post post = postRepository.findById(postId).orElseThrow(() -> new Exception("Post not found with id: " + postId));
+        User referredUser = null;
+        User referrerUser = null;
+
+        Optional<User> optionalReferredUser = userRepository.findById(userId);
+        Optional<User> optionalReferrerUser = userRepository.findById(post.getReferrerId());
+
+        if(optionalReferredUser.isPresent()){
+            referredUser = optionalReferredUser.get();
+            referredUser.setPoints(referredUser.getPoints()+1);
+            userRepository.save(referredUser);
+        }
+
+        if(optionalReferrerUser.isPresent()){
+            referrerUser = optionalReferrerUser.get();
+            referrerUser.setPoints(referrerUser.getPoints()+2);
+            userRepository.save(referrerUser);
+        }
+
         post.setReferredStatus(2);
         postRepository.save(post);
+
         return "Status of the post with postId- "+postId+" changed to referred!";
     }
 
     @Override
     public String addPost(PostDto newPostDto, String userId) throws Exception {
+        System.out.println(newPostDto);
+        if(userRepository.findById(userId).isPresent()){
+            User user = userRepository.findById(userId).get();
+            if(user.getCurrentCompany().equalsIgnoreCase(newPostDto.getCompanyName())) return "You cannot create a request for the company you work!";
+        }
         String id = generateUniqueId();
         while (postRepository.existsById(id)) {
             id = generateUniqueId();
         }
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new Exception("User not found with id: " + userId));
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        // Define the formatter for yyyy-MM-dd format
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        // Format the current date and time to yyyy-MM-dd string
+        String formattedDate = currentDateTime.format(formatter);
+        // Print the formatted date
+        System.out.println("Current Date in yyyy-MM-dd format: " + formattedDate);
+//        System.out.println(newPostDto.getUser().getFirstName());
         newPostDto.setCompanyName(newPostDto.getCompanyName().toLowerCase());
         newPostDto.setPostId(id);
-        User user = userRepository.findById(userId).orElseThrow(() -> new Exception("User not found with id: " + userId));
         newPostDto.setUser(user);
+        newPostDto.setCreationDate(formattedDate);
         Post newPost = modelMapper.map(newPostDto, Post.class);
         postRepository.save(newPost);
         return "Post Created Successfully with postId: "+newPost.getPostId();

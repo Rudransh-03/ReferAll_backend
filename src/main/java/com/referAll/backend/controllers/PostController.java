@@ -20,6 +20,12 @@ public class PostController {
         return ResponseEntity.ok(postDtoList);
     }
 
+    @GetMapping("/posts/getTotalPostsCountByCompany/{companyName}")
+    public ResponseEntity<Integer> getTotalPostsCountByCompany(@PathVariable String companyName){
+        int count = postService.getTotalPostsCountByCompany(companyName);
+        return ResponseEntity.ok(count);
+    }
+
     @GetMapping("/posts/getPostsByUser/{userId}")
     public ResponseEntity<List<PostDto>> getPostsByUser(@PathVariable String userId){
         List<PostDto> postDtoList = postService.getPostsByUser(userId);
@@ -35,6 +41,12 @@ public class PostController {
     @GetMapping("/posts/getPostsByCompany/{companyName}")
     public ResponseEntity<List<PostDto>> getPostsByCompany(@PathVariable String companyName){
         List<PostDto> postDtoList = postService.getPostsByCompany(companyName);
+        return ResponseEntity.ok(postDtoList);
+    }
+
+    @GetMapping("/posts/getPaginatedPostsByCompany/{companyName}")
+    public ResponseEntity<List<PostDto>> getPaginatedPostsByCompany(@RequestParam("pageNumber") int pageNumber,@PathVariable String companyName){
+        List<PostDto> postDtoList = postService.getPaginatedPostsByCompany(pageNumber, companyName);
         return ResponseEntity.ok(postDtoList);
     }
 
@@ -61,20 +73,21 @@ public class PostController {
     }
 
 
-    @GetMapping("/changeIsReferredToInProgress/{postId}")
-    public ResponseEntity<String> changeIsReferredToInProgress(@PathVariable String postId) throws Exception {
-        String response = postService.changeIsReferredToInProgress(postId);
+    @GetMapping("/changeIsReferredToInProgress/{postId}/{userId}")
+    public ResponseEntity<String> changeIsReferredToInProgress(@PathVariable String postId, @PathVariable String userId) throws Exception {
+        String response = postService.changeIsReferredToInProgress(postId, userId);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/changeIsReferredToReferred/{postId}")
-    public ResponseEntity<String> changeIsReferredToReferred(@PathVariable String postId) throws Exception {
-        String response = postService.changeIsReferredToReferred(postId);
+    @GetMapping("/changeIsReferredToReferred/{postId}/{userId}")
+    public ResponseEntity<String> changeIsReferredToReferred(@PathVariable String postId, @PathVariable String userId) throws Exception {
+        String response = postService.changeIsReferredToReferred(postId, userId);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/posts/addPost/{userId}")
     public ResponseEntity<String> addPost(@RequestBody PostDto newPostDto, @PathVariable String userId) throws Exception {
+        System.out.println("UserId: "+userId);
         String response = postService.addPost(newPostDto, userId);
         return ResponseEntity.ok(response);
     }

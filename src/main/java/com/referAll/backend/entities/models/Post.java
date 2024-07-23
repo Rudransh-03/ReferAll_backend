@@ -19,6 +19,9 @@ public class Post {
     @Column(name = "post_id", unique = true, nullable = false)
     private String postId;
 
+    @Column(name = "creation_date")
+    private String creationDate; //(YYYY-MM-DD)
+
     @Column(name = "company_name")
     private String companyName;
 
@@ -36,6 +39,9 @@ public class Post {
 
     @Column(name = "referred_status")
     private int referredStatus = 0;
+
+    @Column(name = "referrer_id")
+    private String referrerId;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

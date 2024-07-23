@@ -68,9 +68,8 @@ public class AuthenticationService {
             if(user.isPresent()){
                 boolean isPasswordMatches = bcrypt.matches(password, user.get().getPassword());
                 System.out.println(isPasswordMatches);
-                if(!isPasswordMatches) throw new Exception("Incorrect password");
+                if(isPasswordMatches == false) throw new Exception("Incorrect password");
             }
-
             else throw new Exception("Incorrect creds");
             System.out.println("authenticate-3");
             return userRepository.findByEmailId(input.getEmailId())

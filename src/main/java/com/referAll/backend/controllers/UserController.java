@@ -50,6 +50,7 @@ public class UserController extends ResponseEntityExceptionHandler {
 
     @PutMapping("/users/updateUser/{userId}")
     public ResponseEntity<String> updateUser(@RequestBody UserDto updatedUserDto, @PathVariable("userId") String userId) {
+        System.out.println(userId);
         String response = userService.updateUser(updatedUserDto, userId);
         return ResponseEntity.ok(response);
     }

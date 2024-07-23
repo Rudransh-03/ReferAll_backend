@@ -8,9 +8,13 @@ public interface PostService {
 
     List<PostDto> getPosts();
 
+    int getTotalPostsCountByCompany(String companyName);
+
     List<PostDto> getPostsByUser(String userId);
 
     List<PostDto> getPostsByCompany(String companyName);
+
+    List<PostDto> getPaginatedPostsByCompany(int pageNumber, String companyName);
 
     PostDto getPostsByPostId(String postId);
 
@@ -18,9 +22,9 @@ public interface PostService {
 
     List<PostDto> getFilteredPostsByReferredStatus(String referredStatus, String companyName);
 
-    String changeIsReferredToInProgress(String postId) throws Exception;
+    String changeIsReferredToInProgress(String postId, String userId) throws Exception;
 
-    String changeIsReferredToReferred(String postId) throws Exception;
+    String changeIsReferredToReferred(String postId, String userId) throws Exception;
 
     String addPost(PostDto newPostDto, String userId) throws Exception;
 

@@ -52,6 +52,7 @@ public class AuthenticationController {
 //            System.out.println("jwt- " + jwtToken);
 
             LoginResponse loginResponse = new LoginResponse();
+            loginResponse.setUserId(authenticatedUser.getUserId());
             loginResponse.setFirstName(authenticatedUser.getFirstName());
             loginResponse.setLastName(authenticatedUser.getLastName());
             loginResponse.setEmailId(authenticatedUser.getEmailId());
@@ -70,7 +71,7 @@ public class AuthenticationController {
             System.out.println("jwt Error");
             // Handle authentication exception and return error response
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Collections.singletonMap("error", e.getMessage()));
+                    .body("Incorrect username or password ");
         }
     }
 }

@@ -80,7 +80,9 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public String updateUser(UserDto updatedUserDto, String userId) {
+        Optional<User> user = userRepository.findById(userId);
         updatedUserDto.setUserId(userId);
+        user.ifPresent(value -> updatedUserDto.setPassword(value.getPassword()));
         User updatedUser = modelMapper.map(updatedUserDto, User.class);
         userRepository.save(updatedUser);
         return "User Updated Successfully";
