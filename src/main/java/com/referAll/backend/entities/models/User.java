@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.List;
 
@@ -53,9 +54,12 @@ public class User {
     private String bio;
 
     @Column(name = "points")
-    private Long points=0L;
+    private Long points = 0L;
 
-    @Transient
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Post> postsList;
+    @JsonIgnore
+    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL)
+    private List<ReferPost> referrerPostList;
+
+    @ManyToMany(mappedBy = "applicants")
+    private List<ReferPost> appliedReferPosts;
 }

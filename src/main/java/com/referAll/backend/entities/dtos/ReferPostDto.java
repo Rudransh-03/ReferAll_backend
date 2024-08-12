@@ -6,14 +6,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostDto {
-    private String postId;
+public class ReferPostDto {
+    private String referPostId;
 
-    private String creationDate;
+    private String creationDate; //(YYYY-MM-DD)
 
     private String companyName;
 
@@ -23,11 +25,11 @@ public class PostDto {
 
     private String jobTitle;
 
-    private String summary;
+    private String jobDescription;
 
-    private int referredStatus = 0;
+    private String yoeRequired;
 
-    private String referrerId;
+    private User creator;
 
-    private User user;
+    List<User> applicants;
 }

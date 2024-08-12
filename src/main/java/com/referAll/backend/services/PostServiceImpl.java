@@ -67,9 +67,10 @@ public class PostServiceImpl implements PostService{
 //        System.out.println(companyName);
         List<PostDto> postDtoList = new ArrayList<>();
         for(Post p : postRepository.findByCompanyName(companyName.toLowerCase())){
-//            System.out.println(p.getUser().getFirstName());
-            PostDto postDto = modelMapper.map(p, PostDto.class);
-            postDtoList.add(postDto);
+            if(p.getReferredStatus() != 1){
+                PostDto postDto = modelMapper.map(p, PostDto.class);
+                postDtoList.add(postDto);
+            }
         }
 
         postDtoList.sort((a, b) -> {
@@ -214,7 +215,7 @@ public class PostServiceImpl implements PostService{
 
     @Override
     public String addPost(PostDto newPostDto, String userId) throws Exception {
-        System.out.println(newPostDto);
+//        System.out.println(newPostDto);
         if(userRepository.findById(userId).isPresent()){
             User user = userRepository.findById(userId).get();
             if(user.getCurrentCompany().equalsIgnoreCase(newPostDto.getCompanyName())) return "You cannot create a request for the company you work!";
