@@ -20,6 +20,7 @@ public class ReferPostController {
         return ResponseEntity.ok(referPostDtosList);
     }
 
+
     @GetMapping("referPosts/getReferPostsByUserId/{userId}")
     public ResponseEntity<List<ReferPostDto>> getReferPostsByUserId(@PathVariable String userId){
         System.out.println("inside getReferPostsByUserId fxn");
