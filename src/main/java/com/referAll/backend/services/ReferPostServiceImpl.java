@@ -49,6 +49,8 @@ public class ReferPostServiceImpl implements ReferPostService {
             ReferPostDto referPostDto = modelMapper.map(p, ReferPostDto.class);
             referPostDtoList.add(referPostDto);
         }
+
+        referPostDtoList.sort((a, b)-> b.getCreationDate().compareTo(a.getCreationDate()));
         return referPostDtoList;
     }
 
