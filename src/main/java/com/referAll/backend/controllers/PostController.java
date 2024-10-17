@@ -75,7 +75,9 @@ public class PostController {
 
     @GetMapping("/changeIsReferredToInProgress/{postId}/{userId}")
     public ResponseEntity<String> changeIsReferredToInProgress(@PathVariable String postId, @PathVariable String userId) throws Exception {
+        System.out.println("in changeIsReferredToInProgress method");
         String response = postService.changeIsReferredToInProgress(postId, userId);
+        System.out.println(response);
         return ResponseEntity.ok(response);
     }
 
