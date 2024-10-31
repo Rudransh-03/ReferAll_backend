@@ -14,9 +14,11 @@ public class ReferPostController {
     @Autowired
     private ReferPostService referPostService;
 
-    @GetMapping("/referPosts/getAllReferPosts")
-    public ResponseEntity<List<ReferPostDto>> getAllReferPosts(){
-        List<ReferPostDto> referPostDtosList = referPostService.getAllReferPosts();
+    @GetMapping("/referPosts/getAllReferPosts/{userId}")
+    public ResponseEntity<List<ReferPostDto>> getAllReferPosts(@PathVariable String userId){
+        System.out.println("getAllReferPosts controller");
+        List<ReferPostDto> referPostDtosList = referPostService.getAllReferPosts(userId);
+        System.out.println(referPostDtosList.size());
         return ResponseEntity.ok(referPostDtosList);
     }
 
