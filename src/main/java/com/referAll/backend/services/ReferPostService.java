@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ReferPostService {
 
-    List<ReferPostDto> getAllReferPosts();
+    List<ReferPostDto> getAllReferPosts(String userId);
 
     List<ReferPostDto> getReferPostsByUserId(String userId);
 

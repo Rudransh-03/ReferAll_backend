@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Ref;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -31,13 +32,18 @@ public class ReferPostServiceImpl implements ReferPostService {
     public static final int ID_LENGTH = 15;
 
     @Override
-    public List<ReferPostDto> getAllReferPosts() {
+    public List<ReferPostDto> getAllReferPosts(String userId) {
         List<ReferPostDto> referPostDtoList = new ArrayList<>();
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if(optionalUser.isEmpty()) return new ArrayList<>();
 
+        User user = optionalUser.get();
         for(ReferPost p : referPostRepository.findAll()){
             ReferPostDto referPostDto = modelMapper.map(p, ReferPostDto.class);
-            referPostDtoList.add(referPostDto);
+            System.out.println(user.getCurrentCompany()+" "+referPostDto.getCompanyName());
+            if(!referPostDto.getCompanyName().equalsIgnoreCase(user.getCurrentCompany())) referPostDtoList.add(referPostDto);
         }
+        referPostDtoList.sort((a, b)-> b.getCreationDate().compareTo(a.getCreationDate()));
         return referPostDtoList;
     }
 
