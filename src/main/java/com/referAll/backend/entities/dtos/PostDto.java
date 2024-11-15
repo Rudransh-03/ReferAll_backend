@@ -30,4 +30,6 @@ public class PostDto {
     private String referrerId;
 
     private User user;
+
+    private User referrer;
 }

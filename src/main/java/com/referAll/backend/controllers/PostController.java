@@ -44,6 +44,13 @@ public class PostController {
         return ResponseEntity.ok(postDtoList);
     }
 
+    @GetMapping("/posts/getPostsReferredByUser/{referrerId}")
+    public ResponseEntity<List<PostDto>> getPostsReferredByUser(@PathVariable String referrerId){
+        System.out.println("in getPostsReferredByUser fxn");
+        List<PostDto> postDtoList = postService.getPostsReferredByUser(referrerId);
+        return ResponseEntity.ok(postDtoList);
+    }
+
     @GetMapping("/posts/getPaginatedPostsByCompany/{companyName}")
     public ResponseEntity<List<PostDto>> getPaginatedPostsByCompany(@RequestParam("pageNumber") int pageNumber,@PathVariable String companyName){
         List<PostDto> postDtoList = postService.getPaginatedPostsByCompany(pageNumber, companyName);
