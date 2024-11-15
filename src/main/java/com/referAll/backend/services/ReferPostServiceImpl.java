@@ -1,8 +1,10 @@
 package com.referAll.backend.services;
 
 import com.referAll.backend.entities.dtos.ReferPostDto;
+import com.referAll.backend.entities.models.Applicant;
 import com.referAll.backend.entities.models.ReferPost;
 import com.referAll.backend.entities.models.User;
+import com.referAll.backend.respositories.ApplicantRepository;
 import com.referAll.backend.respositories.ReferPostRepository;
 import com.referAll.backend.respositories.UserRepository;
 import org.apache.commons.lang.RandomStringUtils;
@@ -14,6 +16,7 @@ import java.sql.Ref;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,20 +30,41 @@ public class ReferPostServiceImpl implements ReferPostService {
     private UserRepository userRepository;
 
     @Autowired
+    private ApplicantRepository applicantRepository;
+
+    @Autowired
     private ModelMapper modelMapper;
 
     public static final int ID_LENGTH = 15;
 
     @Override
     public List<ReferPostDto> getAllReferPosts(String userId) {
+        System.out.println("inside getAllReferPosts fxn");
         List<ReferPostDto> referPostDtoList = new ArrayList<>();
         Optional<User> optionalUser = userRepository.findById(userId);
         if(optionalUser.isEmpty()) return new ArrayList<>();
+        System.out.println("line 45");
 
         User user = optionalUser.get();
+
+        List<Applicant> referPostsApplicantList = user.getReferPostsApplicantList();
+        System.out.println("referPostsApplicantList size: "+referPostsApplicantList.size());
+//        for(Applicant a : referPostsApplicantList) System.out.println(a.toString());
+
+        boolean flag = false;
         for(ReferPost p : referPostRepository.findAll()){
+            flag = false;
+            System.out.println(p.toString());
+            System.out.println("line 55");
+            for(Applicant a : referPostsApplicantList){
+                if(a.getReferPost().equals(p)){
+                    flag = true;
+                    break;
+                }
+            }
+            if(flag) continue;
             ReferPostDto referPostDto = modelMapper.map(p, ReferPostDto.class);
-            System.out.println(user.getCurrentCompany()+" "+referPostDto.getCompanyName());
+            System.out.println("getAllReferPosts "+user.getCurrentCompany()+" "+referPostDto.getCompanyName());
             if(!referPostDto.getCompanyName().equalsIgnoreCase(user.getCurrentCompany())) referPostDtoList.add(referPostDto);
         }
         referPostDtoList.sort((a, b)-> b.getCreationDate().compareTo(a.getCreationDate()));
@@ -53,59 +77,70 @@ public class ReferPostServiceImpl implements ReferPostService {
 
         for(ReferPost p : referPostRepository.findByUserId(userId)){
             ReferPostDto referPostDto = modelMapper.map(p, ReferPostDto.class);
+            List<Applicant> applicantList = referPostDto.getApplicants();
+            applicantList.sort((a, b)-> b.getCreationDate().compareTo(a.getCreationDate()));
+            for(Applicant a : applicantList) System.out.println(a.getUser().getFirstName()+" "+a.getCreationDate());
             referPostDtoList.add(referPostDto);
         }
+
 
         referPostDtoList.sort((a, b)-> b.getCreationDate().compareTo(a.getCreationDate()));
         return referPostDtoList;
     }
 
     @Override
-    public String createReferPost(ReferPostDto newReferPostDto, String userId) throws Exception {
-        System.out.println("userId: "+userId);
-        System.out.println("inside createReferPost impl");
+    public List<ReferPostDto> getAppliedReferPosts(String userId) throws Exception {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if(userOptional.isEmpty()) return new ArrayList<>();
+        User user = userOptional.get();
 
+        System.out.println(user.getFirstName());
+
+        List<ReferPostDto> referPostDtoList = new ArrayList<>();
+        List<Applicant> referPostsApplicantList = user.getReferPostsApplicantList();
+
+        System.out.println("referPostsApplicantList size: " + referPostsApplicantList.size());
+        System.out.println("referPostsApplicantList company name: " + referPostsApplicantList.get(0).getReferPost().getCompanyName());
+
+        for(Applicant referPostApplicant: referPostsApplicantList){
+            ReferPost referPost = referPostApplicant.getReferPost();
+            System.out.println("line number 90: "+referPost.getCompanyName());
+            System.out.println("91 "+referPost.toString());
+            ReferPostDto referPostDto = modelMapper.map(referPost, ReferPostDto.class);
+            System.out.println(referPostDto.getCompanyName());
+            referPostDtoList.add(referPostDto);
+            System.out.println("line 94 "+referPostDtoList.contains(referPostDto));
+        }
+
+        System.out.println("referPostDtoList size: "+referPostDtoList.size());
+
+        if(referPostDtoList.isEmpty()){
+            throw new Exception("Khaali hai!!!!!");
+        }
+
+        referPostDtoList.sort((a, b)-> b.getCreationDate().compareTo(a.getCreationDate()));
+        System.out.println(referPostDtoList.toString());
+        return referPostDtoList;
+    }
+
+    @Override
+    public String createReferPost(ReferPostDto newReferPostDto, String userId) throws Exception {
         String id = generateUniqueId();
         while (referPostRepository.existsById(id)) {
             id = generateUniqueId();
         }
 
-        System.out.println("id: "+id);
-
         User user = userRepository.findById(userId).orElseThrow(() -> new Exception("User not found with id: " + userId));
-
-        System.out.println("user: "+user);
-
         LocalDateTime currentDateTime = LocalDateTime.now();
         // Define the formatter for yyyy-MM-dd format
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         // Format the current date and time to yyyy-MM-dd string
         String formattedDate = currentDateTime.format(formatter);
-        // Print the formatted date
-        System.out.println("Current Date in yyyy-MM-dd format: " + formattedDate);
-
-        System.out.println("cn"+newReferPostDto.getCompanyName());
-
         newReferPostDto.setReferPostId(id);
-
-        System.out.println("id"+newReferPostDto.getReferPostId());
-
         newReferPostDto.setCreator(user);
-
-        System.out.println("user: "+newReferPostDto.getCreator());
-
         newReferPostDto.setCreationDate(formattedDate);
-
-        System.out.println("date: "+newReferPostDto.getCreationDate());
-
         newReferPostDto.setCompanyName(user.getCurrentCompany().toLowerCase());
-
-        System.out.println("cn: "+newReferPostDto.getCompanyName());
-
-        System.out.println("newReferPostDto: "+newReferPostDto.getCreator().getFirstName());
-
         ReferPost referPost = modelMapper.map(newReferPostDto, ReferPost.class);
-        System.out.println("referPost: "+referPost);
         referPostRepository.save(referPost);
         return "Post Created Successfully with postId: "+referPost.getReferPostId();
     }
@@ -128,15 +163,22 @@ public class ReferPostServiceImpl implements ReferPostService {
 
     @Override
     public String deleteReferPost(String referPostId) {
+        System.out.println("Inside deleteReferPost fxn");
         Optional<ReferPost> referPostOptional = referPostRepository.findById(referPostId);
         if(referPostOptional.equals(Optional.empty())) return "Post with this postId does not exist!!!!";
+        System.out.println("line 147");
+        if(!applicantRepository.findByReferPostId(referPostId).isEmpty()){
+            applicantRepository.deleteByReferPost(referPostId);
+        }
+        System.out.println("line 149");
         referPostRepository.deleteById(referPostId);
+        System.out.println("Post deleted");
         return "Post Deleted Successfully";
     }
 
     @Override
     public String applyToReferPost(String referPostId, String userId) {
-//        System.out.println("in applyToReferPost");
+        System.out.println("in applyToReferPost");
         Optional<User> userOptional = userRepository.findById(userId);
         Optional<ReferPost> referPostOptional = referPostRepository.findById(referPostId);
 
@@ -145,11 +187,16 @@ public class ReferPostServiceImpl implements ReferPostService {
         User user = userOptional.get();
         ReferPost referPost= referPostOptional.get();
 
-        List<User> applicantsList = referPost.getApplicants();
+        List<Applicant> applicantsList = referPost.getApplicants();
 
-        if(applicantsList.contains(user)) return "You have already applied for the job!";
+        for(Applicant applicant : applicantsList){
+            if(applicant.getUser().equals(user)) return "You have already applied for the job!";
+        }
 
-        applicantsList.add(user);
+        Applicant applicant = createNewApplicant(user, referPost, "");
+
+        applicantsList.add(applicant);
+        applicantsList.sort((a, b)-> b.getCreationDate().compareTo(a.getCreationDate()));
         referPost.setApplicants(applicantsList);
         referPostRepository.save(referPost);
 
@@ -166,8 +213,11 @@ public class ReferPostServiceImpl implements ReferPostService {
         User user = userOptional.get();
         ReferPost referPost= referPostOptional.get();
 
-        List<User> applicantsList = referPost.getApplicants();
-        return applicantsList.contains(user);
+        List<Applicant> applicantsList = referPost.getApplicants();
+        for(Applicant a:applicantsList){
+            if(a.getUser().equals(user)) return true;
+        }
+        return false;
     }
 
     @Override
@@ -180,18 +230,42 @@ public class ReferPostServiceImpl implements ReferPostService {
         User user = userOptional.get();
         ReferPost referPost= referPostOptional.get();
 
-        List<User> applicantsList = referPost.getApplicants();
+        List<Applicant> applicantsList = referPost.getApplicants();
 
-        if(!applicantsList.contains(user)) return "Application doesn't exist";
+        for(Applicant a : applicantsList){
+            if(a.getUser().equals(user)){
+                applicantsList.remove(a);
+                referPost.setApplicants(applicantsList);
+                referPostRepository.save(referPost);
+                applicantRepository.deleteById(a.getApplicantId());
+                return "Application withdrawn successfully";
+            }
+        }
 
-        applicantsList.remove(user);
-        referPost.setApplicants(applicantsList);
-        referPostRepository.save(referPost);
-
-        return "Application withdrawn successfully";
+        return "Application doesn't exist";
     }
 
-    public String generateUniqueId() {
+    private String generateUniqueId() {
         return RandomStringUtils.randomAlphanumeric(ID_LENGTH);
+    }
+
+    private Applicant createNewApplicant(User user, ReferPost referPost, String status){
+        String id = generateUniqueId();
+        while (applicantRepository.existsById(id)) {
+            id = generateUniqueId();
+        }
+
+        LocalDateTime currentDateTime = LocalDateTime.now();
+// Define the formatter for yyyy-MM-dd and second-level precision
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+// Format the current date and time to yyyy-MM-dd HH:mm:ss string
+        String formattedDate = currentDateTime.format(formatter);
+
+        System.out.println("formatted Date: "+formattedDate);
+
+        Applicant applicant = new Applicant(id, status, user, referPost, formattedDate);
+        applicantRepository.save(applicant);
+        System.out.println("New Applicant created: id: "+id+" first name: "+user.getFirstName() +" referPostCompany: "+referPost.getCompanyName());
+        return applicant;
     }
 }

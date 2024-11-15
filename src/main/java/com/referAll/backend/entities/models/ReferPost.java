@@ -1,10 +1,7 @@
 package com.referAll.backend.entities.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -17,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Slf4j
+@ToString
 public class ReferPost {
     @Id
     @Column(name = "refer_post_id", unique = true, nullable = false)
@@ -47,12 +45,16 @@ public class ReferPost {
     @JoinColumn(name = "user_id")
     private User creator;
 
+//    @JsonIgnore
+//    @ManyToMany
+//    @JoinTable(
+//            name = "refer_post_applicants",
+//            joinColumns = @JoinColumn(name = "refer_post_id"),
+//            inverseJoinColumns = @JoinColumn(name = "user_id")
+//    )
+//    private List<User> applicants;
+
     @JsonIgnore
-    @ManyToMany
-    @JoinTable(
-            name = "refer_post_applicants",
-            joinColumns = @JoinColumn(name = "refer_post_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private List<User> applicants;
+    @OneToMany(mappedBy = "referPost", cascade = CascadeType.ALL)
+    private List<Applicant> applicants;
 }

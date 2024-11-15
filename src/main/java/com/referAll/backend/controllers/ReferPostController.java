@@ -4,6 +4,7 @@ import com.referAll.backend.entities.dtos.ReferPostDto;
 import com.referAll.backend.services.ReferPostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,15 @@ public class ReferPostController {
     public ResponseEntity<List<ReferPostDto>> getReferPostsByUserId(@PathVariable String userId){
         System.out.println("inside getReferPostsByUserId fxn");
         List<ReferPostDto> referPostDtosList = referPostService.getReferPostsByUserId(userId);
+        return ResponseEntity.ok(referPostDtosList);
+    }
+
+    @GetMapping("referPosts/getAppliedReferPosts/{userId}")
+    public ResponseEntity<List<ReferPostDto>> getAppliedReferPosts(@PathVariable String userId) throws Exception {
+        System.out.println("userId: "+userId);
+        System.out.println("inside getAppliedReferPosts fxn");
+        List<ReferPostDto> referPostDtosList = referPostService.getAppliedReferPosts(userId);
+        System.out.println(referPostDtosList.toString());
         return ResponseEntity.ok(referPostDtosList);
     }
 
@@ -50,6 +60,7 @@ public class ReferPostController {
     @GetMapping("referPosts/applyToReferPost/{referPostId}/{userId}")
     public ResponseEntity<String> applyToReferPost(@PathVariable String referPostId, @PathVariable String userId){
         String response = referPostService.applyToReferPost(referPostId, userId);
+        System.out.println("All good");
         return ResponseEntity.ok(response);
     }
 

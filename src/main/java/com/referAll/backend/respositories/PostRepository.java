@@ -1,5 +1,6 @@
 package com.referAll.backend.respositories;
 
+import com.referAll.backend.entities.dtos.PostDto;
 import com.referAll.backend.entities.models.Post;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -12,6 +13,9 @@ public interface PostRepository extends CrudRepository<Post, String> {
 
     @Query(value = "SELECT COUNT(*) FROM POSTS WHERE LOWER(company_name) = LOWER(?1)", nativeQuery = true)
     public int getTotalPostsCountByCompany(String companyName);
+
+    @Query(value = "SELECT * FROM POSTS where referrer_id = ?1", nativeQuery = true)
+    public List<Post> findPostsByReferrerId(String userId);
 
     @Query(value = "SELECT * FROM POSTS where user_id = ?1", nativeQuery = true)
     public List<Post> findByUserID(String userId);

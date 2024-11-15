@@ -60,6 +60,10 @@ public class User {
     @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL)
     private List<ReferPost> referrerPostList;
 
-    @ManyToMany(mappedBy = "applicants")
-    private List<ReferPost> appliedReferPosts;
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Applicant> referPostsApplicantList;
+
+//    @ManyToMany(mappedBy = "applicants")
+//    private List<ReferPost> appliedReferPosts;
 }
