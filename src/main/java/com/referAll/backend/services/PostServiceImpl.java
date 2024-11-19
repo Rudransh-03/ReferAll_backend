@@ -5,12 +5,16 @@ import com.referAll.backend.entities.models.Post;
 import com.referAll.backend.entities.models.User;
 import com.referAll.backend.respositories.PostRepository;
 import com.referAll.backend.respositories.UserRepository;
+import jakarta.transaction.Transactional;
 import org.apache.commons.lang.RandomStringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -294,6 +298,20 @@ public class PostServiceImpl implements PostService{
         if(post.equals(Optional.empty())) return "Post with this postId does not exist!!!!";
         postRepository.deleteById(postId);
         return "Post Deleted Successfully";
+    }
+
+    // Scheduled to run daily at 12 AM
+
+    @Override
+    @Transactional
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void deleteOldPosts() {
+        System.out.println("in deleteOldPosts method");
+        LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault()).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime thresholdDateTime = now.minusDays(31);
+        LocalDate thresholdDate = thresholdDateTime.toLocalDate();
+
+        postRepository.deleteByCreatedAtBefore(thresholdDate.toString());
     }
 
     public String generateUniqueId() {

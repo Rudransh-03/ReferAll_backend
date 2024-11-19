@@ -179,6 +179,7 @@ public class ReferPostServiceImpl implements ReferPostService {
     @Override
     public String applyToReferPost(String referPostId, String userId) {
         System.out.println("in applyToReferPost");
+        System.out.println(referPostId);
         Optional<User> userOptional = userRepository.findById(userId);
         Optional<ReferPost> referPostOptional = referPostRepository.findById(referPostId);
 
