@@ -34,4 +34,6 @@ public interface PostService {
     String updatePost(PostDto postDto, String userId, String postId) throws Exception;
 
     String deletePost(String postId) throws Exception;
+
+    void deleteOldPosts();
 }

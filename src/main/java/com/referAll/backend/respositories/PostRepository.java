@@ -2,10 +2,12 @@ package com.referAll.backend.respositories;
 
 import com.referAll.backend.entities.dtos.PostDto;
 import com.referAll.backend.entities.models.Post;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -34,5 +36,9 @@ public interface PostRepository extends CrudRepository<Post, String> {
 
     @Query(value = "SELECT * FROM POSTS WHERE referred_status = ?1 AND LOWER(company_name) = LOWER(?2)", nativeQuery = true)
     public List<Post> getFilteredPostsByReferredStatus(int referredStatus, String companyName);
+
+    @Modifying
+    @Query(value = "DELETE FROM POSTS WHERE creation_date <= ?1 AND referred_status = 0", nativeQuery = true)
+    public void deleteByCreatedAtBefore(String thresholdDate);
 
 }
