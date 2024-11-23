@@ -5,12 +5,16 @@ import com.referAll.backend.entities.models.Post;
 import com.referAll.backend.entities.models.User;
 import com.referAll.backend.respositories.PostRepository;
 import com.referAll.backend.respositories.UserRepository;
+import jakarta.transaction.Transactional;
 import org.apache.commons.lang.RandomStringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -51,7 +55,18 @@ public class PostServiceImpl implements PostService{
     public List<PostDto> getPostsByUser(String userId) {
         List<PostDto> postDtoList = new ArrayList<>();
         for(Post p : postRepository.findByUserID(userId)){
+            User referrer = null;
+            if(p.getReferrerId()!=null){
+                System.out.println("getPostsByUser fxn "+p.getReferrerId());
+                Optional<User> referrerOptional = userRepository.findById(p.getReferrerId());
+                if(referrerOptional.isPresent()) referrer = referrerOptional.get();
+            }
+
             PostDto postDto = modelMapper.map(p, PostDto.class);
+            if(postDto.getReferrerId()!=null){
+                System.out.println("2nd "+postDto.getReferrerId());
+                postDto.setReferrer(referrer);
+            }
             postDtoList.add(postDto);
         }
 
@@ -64,7 +79,6 @@ public class PostServiceImpl implements PostService{
 
     @Override
     public List<PostDto> getPostsByCompany(String companyName) {
-//        System.out.println(companyName);
         List<PostDto> postDtoList = new ArrayList<>();
         for(Post p : postRepository.findByCompanyName(companyName.toLowerCase())){
             if(p.getReferredStatus() != 1){
@@ -76,11 +90,27 @@ public class PostServiceImpl implements PostService{
         postDtoList.sort((a, b) -> {
             Long pointsA = a.getUser().getPoints();
             Long pointsB = b.getUser().getPoints();
-
             if(a.getReferredStatus() == b.getReferredStatus()) return pointsB.compareTo(pointsA);
             return (a.getReferredStatus() - b.getReferredStatus());
         });
+        return postDtoList;
+    }
 
+    @Override
+    public List<PostDto> getPostsReferredByUser(String referrerId){
+        List<PostDto> postDtoList = new ArrayList<>();
+        System.out.println("just before the repo call");
+        for(Post p : postRepository.findPostsByReferrerId(referrerId)){
+            if(p.getReferredStatus() == 0) continue;
+            PostDto postDto = modelMapper.map(p, PostDto.class);
+            postDtoList.add(postDto);
+            System.out.println(postDto.getUser().getFirstName());
+        }
+
+        postDtoList.sort((a, b)->{
+            if(a.getCreationDate().equalsIgnoreCase(b.getCreationDate())) return a.getReferredStatus() - b.getReferredStatus();
+            return a.getCreationDate().compareTo(b.getCreationDate());
+        });
         return postDtoList;
     }
 
@@ -95,10 +125,6 @@ public class PostServiceImpl implements PostService{
         return completeList.subList(startingIndex, endingIndex);
     }
 
-//    public List<PostDto> paginatePosts(int pageNumber, List<PostDto> postsList){
-//
-//    }
-
     @Override
     public PostDto getPostsByPostId(String postId) {
         Post post = postRepository.findByPostId(postId);
@@ -107,9 +133,6 @@ public class PostServiceImpl implements PostService{
 
     @Override
     public List<PostDto> getFilteredPostsByReferredStatusAndSearchTerm(String referredStatus, String searchTerm, String companyName) {
-
-//        if(referredStatus.equalsIgnoreCase("none")) return getPostsByCompany(companyName);
-
         System.out.println(referredStatus);
         int referredStatusInt = 0;
         if(referredStatus.equalsIgnoreCase("referred")) referredStatusInt = 2;
@@ -166,17 +189,10 @@ public class PostServiceImpl implements PostService{
 
     @Override
     public String changeIsReferredToInProgress(String postId, String userId) throws Exception {
-
-//        System.out.println("in changeIsReferredToInProgress service method");
-
         Post post = postRepository.findById(postId).orElseThrow(() -> new Exception("Post not found with id: " + postId));
         String referredUserId = post.getUser().getUserId();
         Optional<User> optionalReferredUser = userRepository.findById(referredUserId);
         User referredUser = null;
-
-
-//        System.out.println("in changeIsReferredToInProgress service method line 177");
-
         Optional<User> optionalReferrerUser = userRepository.findById(userId);
         User referrerUser = null;
 
@@ -282,6 +298,20 @@ public class PostServiceImpl implements PostService{
         if(post.equals(Optional.empty())) return "Post with this postId does not exist!!!!";
         postRepository.deleteById(postId);
         return "Post Deleted Successfully";
+    }
+
+    // Scheduled to run daily at 12 AM
+
+    @Override
+    @Transactional
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void deleteOldPosts() {
+        System.out.println("in deleteOldPosts method");
+        LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault()).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime thresholdDateTime = now.minusDays(31);
+        LocalDate thresholdDate = thresholdDateTime.toLocalDate();
+
+        postRepository.deleteByCreatedAtBefore(thresholdDate.toString());
     }
 
     public String generateUniqueId() {

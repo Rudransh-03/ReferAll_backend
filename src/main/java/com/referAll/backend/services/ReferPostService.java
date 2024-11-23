@@ -10,6 +10,8 @@ public interface ReferPostService {
 
     List<ReferPostDto> getReferPostsByUserId(String userId);
 
+    List<ReferPostDto> getAppliedReferPosts(String userId) throws Exception;
+
     String createReferPost(ReferPostDto newReferPostDto, String userId) throws Exception;
 
     String updateReferPost(ReferPostDto updatedReferPostDto, String userId, String referPostId) throws Exception;

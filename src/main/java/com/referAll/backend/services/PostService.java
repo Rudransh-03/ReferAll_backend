@@ -1,6 +1,7 @@
 package com.referAll.backend.services;
 
 import com.referAll.backend.entities.dtos.PostDto;
+import com.referAll.backend.entities.models.Post;
 
 import java.util.List;
 
@@ -13,6 +14,8 @@ public interface PostService {
     List<PostDto> getPostsByUser(String userId);
 
     List<PostDto> getPostsByCompany(String companyName);
+
+    List<PostDto> getPostsReferredByUser(String referrerId);
 
     List<PostDto> getPaginatedPostsByCompany(int pageNumber, String companyName);
 
@@ -31,4 +34,6 @@ public interface PostService {
     String updatePost(PostDto postDto, String userId, String postId) throws Exception;
 
     String deletePost(String postId) throws Exception;
+
+    void deleteOldPosts();
 }

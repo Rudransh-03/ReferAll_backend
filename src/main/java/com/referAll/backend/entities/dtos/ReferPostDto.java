@@ -1,5 +1,6 @@
 package com.referAll.backend.entities.dtos;
 
+import com.referAll.backend.entities.models.Applicant;
 import com.referAll.backend.entities.models.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,5 +32,5 @@ public class ReferPostDto {
 
     private User creator;
 
-    List<User> applicants;
+    private List<Applicant> applicants;
 }
