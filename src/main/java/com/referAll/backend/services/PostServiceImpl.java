@@ -208,9 +208,9 @@ public class PostServiceImpl implements PostService{
 
 //        System.out.println("line 193");
 
-//        emailSenderService.sendMail(referredUser.getEmailId(), "You have been referred!!", "You received a referral from "+referrerUser.getEmailId()+
-//                " for your request for the position: "+post.getJobTitle()+" at "+post.getCompanyName()+" on our website. " +
-//                "Kindly check your mails including your spam folder for any such official confirmation from the company");
+        emailSenderService.sendMail(referredUser.getEmailId(), "You have been referred!!", "You received a referral from "+referrerUser.getEmailId()+
+                " for your request for the position: "+post.getJobTitle()+" at "+post.getCompanyName()+" on our website. " +
+                "Kindly check your mails including your spam folder for any such official confirmation from the company");
 
 
 //        System.out.println("line 200");
