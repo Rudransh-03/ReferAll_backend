@@ -79,6 +79,19 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    public String changePassword(String emailId, String newPassword) {
+        Optional<User> optionalUser = userRepository.findByEmailId(emailId);
+        if(optionalUser.isEmpty()) return "user not found";
+
+        User user = optionalUser.get();
+
+        user.setPassword(newPassword);
+        userRepository.save(user);
+
+        return "Password Updated Successfully";
+    }
+
+    @Override
     public String updateUser(UserDto updatedUserDto, String userId) {
         Optional<User> user = userRepository.findById(userId);
         updatedUserDto.setUserId(userId);

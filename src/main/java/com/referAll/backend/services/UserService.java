@@ -16,6 +16,8 @@ public interface UserService {
 
     String addUser(UserDto newUserDto);
 
+    String changePassword(String emailId, String newPassword);
+
     String updateUser(UserDto updatedUserDto, String userId);
 
     String deleteUser(String userId);
