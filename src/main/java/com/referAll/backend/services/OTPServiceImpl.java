@@ -42,6 +42,7 @@ public class OTPServiceImpl implements OTPService {
 
     @Override
     public boolean validateOTP(String emailId, String otp, String newPassword) {
+        System.out.println("new password; "+newPassword);
         System.out.println("line 33");
 
         for(String key: otpStore.keySet()) System.out.println(key+ " " +otpStore.get(key).getOtp());

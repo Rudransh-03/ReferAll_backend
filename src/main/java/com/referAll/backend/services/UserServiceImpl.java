@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang.RandomStringUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,10 +22,16 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private UserRepository userRepository;
 
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
     private ModelMapper modelMapper;
 
     public static final int ID_LENGTH = 15;
+
+    public UserServiceImpl(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public UserDto getUserByUserId(String userId) throws Exception {
@@ -85,7 +92,8 @@ public class UserServiceImpl implements UserService{
 
         User user = optionalUser.get();
 
-        user.setPassword(newPassword);
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(encodedPassword);
         userRepository.save(user);
 
         return "Password Updated Successfully";
